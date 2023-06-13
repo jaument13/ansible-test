@@ -1,0 +1,11 @@
+AnsUbuntuTest1 ansible_user=jaument13
+AnsOracleTest1 ansible_user=jaument13
+Ubuntu22-04-1 ansible_user=jaument13
+
+[yum]
+AnsOracleTest1
+
+[apt]
+AnsUbuntuTest1
+Ubuntu22-04-1
+192.168.1.94

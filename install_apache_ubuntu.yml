@@ -1,6 +1,6 @@
 ---
 
-- hosts: all
+- hosts: apt
   become: true
   tasks:
 
@@ -20,21 +20,4 @@
       name: libapache2-mod-php
       state: latest
     when: ansible_distribution in ["Debian", "Ubuntu"]
-
-  - name: update repository index
-    dnf:
-      update_cache: yes
-    when: ansible_distribution == "OracleLinux"
-
-  - name: Install Apache on OracleLinux
-    dnf:
-      name: httpd
-      state: latest
-    when: ansible_distribution == "OracleLinux"
-
-  - name: add php support for apache
-    dnf:
-      name: php
-      state: latest
-    when: ansible_distribution == "OracleLinux"
 

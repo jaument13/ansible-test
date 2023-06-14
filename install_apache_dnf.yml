@@ -1,0 +1,14 @@
+---
+
+- hosts: yum
+  become: true
+  tasks:
+
+  - name: Install Apache and php package on OracleLinux
+    dnf:
+      name: 
+        - httpd
+        - php
+      state: latest
+      update_cache: yes
+

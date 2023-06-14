@@ -3,10 +3,20 @@ AnsOracleTest1 ansible_user=jaument13
 Ubuntu22-04-1 ansible_user=jaument13
 192.168.1.94 ansible_user=jaument13
 
-[yum]
+[web_servers]
 AnsOracleTest1
+
+[db_servers]
+AnsUbuntuTest1
+Ubuntu22-04-1
+
+[file_servers]
+192.168.1.94
 
 [apt]
 AnsUbuntuTest1
 Ubuntu22-04-1
 192.168.1.94
+
+[yum]
+AnsOracleTest1

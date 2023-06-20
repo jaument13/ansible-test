@@ -20,3 +20,6 @@ Ubuntu22-04-1
 
 [yum]
 AnsOracleTest1
+
+[workstations]
+Ubuntu22-04-1

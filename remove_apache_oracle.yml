@@ -1,0 +1,19 @@
+---
+
+- hosts: yum 
+  become: true
+  tasks:
+
+  - name: update repository index
+    package:
+      update_cache: yes
+
+  - name: Remove Apache on OracleLinux
+    package:
+      name: httpd
+      state: absent
+
+  - name: Remove php support for apache
+    package:
+      name: php
+      state: absent

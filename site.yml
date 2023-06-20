@@ -18,6 +18,23 @@
       update_cache: yes
     when: ansible_distribution in ["Ubuntu", "Debian"]
 
+- hosts: workstations
+  become: true
+  tasks:
+
+  - name: install unzip
+    package:
+      name: unzip
+
+  - name: install terraform
+    unarchive:
+      src: https://releases.hashicorp.com/terraform/1.4.6/terraform_1.4.6_linux_amd64.zip
+      dest: /usr/local/bin
+      remote_src: yes
+      mode: 0755
+      owner: root
+      group: root
+
 - hosts: web_servers
   become: true
   tasks:
@@ -31,6 +48,22 @@
       state: latest
     when: ansible_distribution == "OracleLinux"
 
+  - name: change e-mail address for admin
+    tags: apache,oraclelinux,httpd
+    lineinfile:
+      path: /etc/httpd/conf/httpd.conf
+      regexp: '^ServerAdmin'
+      line: ServerAdmin somebody@somewhere.net
+    when: ansible_distribution == "OracleLinux"
+    register: httpd
+
+  - name: restart httpd (Oracle Linux)
+    tags: apache,oraclelinux,httpd
+    service:
+      name: httpd
+      state: restarted
+    when: httpd.changed
+
   - name: copy default html file for site
     tags: apache,apache2,httpd
     copy:
@@ -39,6 +72,14 @@
       owner: root
       group: root
       mode: 0644
+
+  - name: start httpd (Oracle Linux)
+    tags: apache,oraclelinux,httpd
+    service:
+      name: httpd
+      state: started
+      enabled: yes
+    when: ansible_distribution == "OracleLinux"
 
   - name: Install Apache and php package on Ubuntu and Debian
     tags: apache,apache2,ubuntu,debian

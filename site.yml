@@ -7,16 +7,26 @@
   - name: install updates (OracleLinux)
     tags: always
     dnf:
-      update_only: yes
       update_cache: yes
+    changed_when: false
     when: ansible_distribution == "OracleLinux"
 
   - name: install updates (Ubuntu)
     tags: always
     apt:
-      upgrade: dist
       update_cache: yes
+    changed_when: false
     when: ansible_distribution in ["Ubuntu", "Debian"]
+
+- hosts: all
+  become: true
+  tasks:
+
+  - name: add ssh key for simone
+    tags: always
+    authorized_key:
+      user: simone
+      key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKyyCg7I0q4f+vnBXx6it/WHcFk/WY2inqW2g7uzYll5 ansible"
 
 - hosts: workstations
   become: true

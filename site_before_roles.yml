@@ -1,0 +1,129 @@
+---
+
+- hosts: all
+  become: true
+  pre_tasks:
+
+  - name: install updates (OracleLinux)
+    tags: always
+    dnf:
+      update_cache: yes
+    changed_when: false
+    when: ansible_distribution == "OracleLinux"
+
+  - name: install updates (Ubuntu)
+    tags: always
+    apt:
+      update_cache: yes
+    changed_when: false
+    when: ansible_distribution in ["Ubuntu", "Debian"]
+
+- hosts: all
+  become: true
+  tasks:
+
+  - name: add ssh key for simone
+    tags: always
+    authorized_key:
+      user: simone
+      key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKyyCg7I0q4f+vnBXx6it/WHcFk/WY2inqW2g7uzYll5 ansible"
+
+- hosts: workstations
+  become: true
+  tasks:
+
+  - name: install unzip
+    package:
+      name: unzip
+
+  - name: install terraform
+    unarchive:
+      src: https://releases.hashicorp.com/terraform/1.4.6/terraform_1.4.6_linux_amd64.zip
+      dest: /usr/local/bin
+      remote_src: yes
+      mode: 0755
+      owner: root
+      group: root
+
+- hosts: web_servers
+  become: true
+  tasks:
+
+  - name: Install Apache and php package on Oracle Linux
+    tags: apache,oraclelinux,httpd
+    package:
+      name: 
+        - httpd
+        - php
+      state: latest
+    when: ansible_distribution == "OracleLinux"
+
+  - name: change e-mail address for admin
+    tags: apache,oraclelinux,httpd
+    lineinfile:
+      path: /etc/httpd/conf/httpd.conf
+      regexp: '^ServerAdmin'
+      line: ServerAdmin somebody@somewhere.net
+    when: ansible_distribution == "OracleLinux"
+    register: httpd
+
+  - name: restart httpd (Oracle Linux)
+    tags: apache,oraclelinux,httpd
+    service:
+      name: httpd
+      state: restarted
+    when: httpd.changed
+
+  - name: copy default html file for site
+    tags: apache,apache2,httpd
+    copy:
+      src: default_site.html
+      dest: /var/www/html/index.html
+      owner: root
+      group: root
+      mode: 0644
+
+  - name: start httpd (Oracle Linux)
+    tags: apache,oraclelinux,httpd
+    service:
+      name: httpd
+      state: started
+      enabled: yes
+    when: ansible_distribution == "OracleLinux"
+
+  - name: Install Apache and php package on Ubuntu and Debian
+    tags: apache,apache2,ubuntu,debian
+    package:
+      name:
+        - apache2
+        - libapache2-mod-php
+      state: latest
+    when: ansible_distribution in ["Ubuntu", "Debian"]
+
+- hosts: db_servers
+  become: true
+  tasks:
+
+  - name: install mariadb package (Oracle Linux)
+    tags: oraclelinux,db,mariadb
+    dnf:
+      name: mariadb
+      state: latest
+    when: ansible_distribution == "OracleLinux"
+
+  - name: install mariadb package (Ubuntu and Debian)
+    tags: db,mariadb,ubuntu,debian
+    apt:
+      name: mariadb-server
+      state: latest
+    when: ansible_distribution in ["Debian", "Ubuntu"]
+
+- hosts: file_servers
+  become: true
+  tasks:
+
+  - name: install samba package
+    tags: samba
+    package:
+      name: samba
+      state: latest
